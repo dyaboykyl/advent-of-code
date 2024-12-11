@@ -2,7 +2,7 @@ import { MinPriorityQueue } from '@datastructures-js/priority-queue';
 import { parse } from 'csv-parse/sync';
 import fs from 'fs/promises';
 
-const raw = await fs.readFile("day1/input");
+const raw = await fs.readFile("input");
 const lines = parse(raw, { delimiter: '   ' });
 const length = lines.length;
 

@@ -57,7 +57,7 @@ class Node {
   }
 }
 
-const diskMap = fs.readFileSync("day9/input").toString();
+const diskMap = fs.readFileSync("input").toString();
 
 function diskLLToArray() {
   let disk = [];

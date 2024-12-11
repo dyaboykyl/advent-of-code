@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const stones = fs.readFileSync("day11/input").toString().split(" ").map(s => parseInt(s))
+const stones = fs.readFileSync("input").toString().split(" ").map(s => parseInt(s))
 const cache = new Map();
 
 function getCount(stone, blink, totalBlinks) {

@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const input = fs.readFileSync("day3/input").toString()
+const input = fs.readFileSync("input").toString()
 const mulRegex = /mul\(([1-9][0-9]?[0-9]?),([1-9][0-9]?[0-9]?)\)/g;
 const dontRegex = /don't\(\).+?do\(\)/g;
 

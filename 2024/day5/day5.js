@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const input = fs.readFileSync("day5/input").toString();
+const input = fs.readFileSync("input").toString();
 const parts = input.split("\n\n");
 const orders = parts[0].split("\n").map(o => {
   const pages = o.split("|");

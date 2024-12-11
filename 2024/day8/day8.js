@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const map = fs.readFileSync("day8/input").toString().split("\n").map(row => row.split(""));
+const map = fs.readFileSync("input").toString().split("\n").map(row => row.split(""));
 
 const frequencyMap = new Map()
 const part1Antinodes = new Set();

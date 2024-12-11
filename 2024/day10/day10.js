@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const input = fs.readFileSync("day10/input").toString();
+const input = fs.readFileSync("input").toString();
 const map = input.split("\n").map(row => row.split("").map(col => parseInt(col)));
 
 function getNeighbors(row, col) {

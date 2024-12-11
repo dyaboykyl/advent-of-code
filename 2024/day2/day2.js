@@ -3,7 +3,7 @@
 import { parse } from 'csv-parse/sync';
 import fs from 'fs/promises';
 
-const data = await fs.readFile("day2/input");
+const data = await fs.readFile("input");
 const reports = parse(data, { delimiter: ' ', relax_column_count: true });
 
 function getUnsafeLevel(report) {

@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const input = fs.readFileSync("day4/input").toString();
+const input = fs.readFileSync("input").toString();
 const rows = input.split('\n');
 
 const columns = [];

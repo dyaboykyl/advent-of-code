@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const equations = fs.readFileSync("day7/input").toString().split("\n")
+const equations = fs.readFileSync("input").toString().split("\n")
   .map(line => {
     const split = line.split(": ");
     const value = parseInt(split[0]);

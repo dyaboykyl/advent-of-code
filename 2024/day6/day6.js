@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const grid = fs.readFileSync("day6/input").toString().split("\n").map(row => row.split(''));
+const grid = fs.readFileSync("input").toString().split("\n").map(row => row.split(''));
 
 const movementMap = {
   'u': [-1, 0, 'r', 'u'],
