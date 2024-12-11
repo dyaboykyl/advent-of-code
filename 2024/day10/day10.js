@@ -8,6 +8,8 @@ function getNeighbors(row, col) {
     .filter(neighbor => neighbor.row >= 0 && neighbor.row < map.length && neighbor.col >= 0 && neighbor.col < map[row].length)
 }
 
+let rating = 0, score = 0;
+
 function getScoreAndRating(startRow, startCol) {
   const queue = [];
   const visited = map.map(row => Array(row.length).fill(0));
@@ -28,31 +30,20 @@ function getScoreAndRating(startRow, startCol) {
     }
   } while (queue.length !== 0);
 
-  let score = 0;
-  const rating = visited.reduce((sum, row) => sum + row.reduce((rowSum, count) => {
-    if (count > 0) {
-      score++;
-    }
-    return rowSum + count;
-  }, 0), 0);
-
-  return { score, rating }
+  visited.forEach(row => row.forEach(count => {
+    score += !!count;
+    rating += count;
+  }));
 }
 
-const scoresAndRatings = [];
 for (let row = 0; row < map.length; row++) {
   for (let col = 0; col < map[row].length; col++) {
     if (map[row][col] !== 0) {
       continue;
     }
 
-    scoresAndRatings.push(getScoreAndRating(row, col));
+    getScoreAndRating(row, col);
   }
 }
 
-const sums = scoresAndRatings.reduce((sums, sr) => {
-  sums.scoreSum += sr.score;
-  sums.ratingSum += sr.rating;
-  return sums;
-}, { scoreSum: 0, ratingSum: 0 });
-console.log(`Score: ${sums.scoreSum} Rating: ${sums.ratingSum}`);
+console.log(`Score: ${score} Rating: ${rating}`);
