@@ -11,8 +11,8 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "cwd": "${workspaceFolder}/2024/day12",
-      "program": "${workspaceFolder}/2024/day12/day12.js",
+      "cwd": "${workspaceFolder}/2024/day13",
+      "program": "${workspaceFolder}/2024/day13/day13.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]
