@@ -3,4 +3,4 @@
 day="day$1"
 cd "2024/$day"
 
-node "./$day.js"
+node "./solution.js"
