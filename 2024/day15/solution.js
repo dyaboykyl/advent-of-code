@@ -1,88 +1,184 @@
 import fs from 'fs';
 
-const WIDTH = 101;
-const HEIGHT = 103;
-const middleY = (HEIGHT - 1) / 2;
-const middleX = (WIDTH - 1) / 2;
+const input = fs.readFileSync("input").toString()
+const [gridStr, movesStr] = input.split("\n\n");
+const grid = gridStr.split("\n").map(row => row.split(""));
 
-const robots = fs.readFileSync("input").toString().split("\n").map(robot => {
-  const [pos, vel] = robot.split(" ");
-  const startPosition = parsePair(pos);
-  return { startPosition, position: { ...startPosition }, velocity: parsePair(vel) };
-});
+const grid2 = grid.map(row => row.map(obj => {
+  let replace;
+  switch (obj) {
+    case "@":
+      replace = "@.";
+      break;
+    case ".":
+    case "#":
+      replace = obj + obj;
+      break;
+    case "O":
+      replace = "[]"
+      break;
+  }
+  return replace.split("")
+}).flat());
+const moves = movesStr.replaceAll("\n", "").split("");
 
-function parsePair(str) {
-  const pair = str.split("=")[1].split(",");
-  return { x: parseInt(pair[0]), y: parseInt(pair[1]) };
+const movementMap = {
+  '>': { y: 0, x: 1 },
+  '^': { y: -1, x: 0 },
+  '<': { y: 0, x: -1 },
+  'v': { y: 1, x: 0 },
 }
 
-function move(robot, times, grid) {
-  robot.position.x = (robot.position.x + times * robot.velocity.x) % WIDTH;
-  if (robot.position.x < 0) {
-    robot.position.x += WIDTH;
-  }
-  robot.position.y = (robot.position.y + times * robot.velocity.y) % HEIGHT;
-  if (robot.position.y < 0) {
-    robot.position.y += HEIGHT;
-  }
+function findRobot(grid) {
+  const robot = {};
 
-  grid && grid[robot.position.y][robot.position.x]++;
+  grid.forEach((row, y) => row.forEach((value, x) => {
+    if (value === "@") {
+      robot.x = x;
+      robot.y = y;
+    }
+  }));
+
+  return robot;
 }
 
-function getQuadrant(robot) {
-  if (robot.position.y === middleY || robot.position.x === middleX) {
-    return -1;
-  }
-
-  const x = robot.position.x > middleX ? 2 : 1;
-  const y = robot.position.y > middleY ? 2 : 0;
-
-  return y + x;
+function isWall(position, grid) {
+  return grid[position.y][position.x] === "#";
 }
 
-function getTree() {
-  const grid = [];
-  for (let i = 0; i < HEIGHT; i++) {
-    grid.push(Array(WIDTH).fill(0))
-  }
-  robots.forEach(r => move(r, 1, grid));
+function isBox(position) {
+  return grid[position.y][position.x] === "O";
+}
 
-  for (let xBound = 5; xBound < WIDTH; xBound += 5) {
-    for (let yBound = 5; yBound < HEIGHT; yBound += 5) {
-      let together = true;
-      for (let x = xBound - 5; x < xBound; x++) {
-        for (let y = yBound - 5; y < yBound; y++) {
-          if (grid[y][x] === 0) {
-            together = false;
-          }
-        }
-      }
-      if (together) {
-        return true;
-      }
+function isPartBox(position) {
+  return grid2[position.y][position.x] === "[" || grid2[position.y][position.x] === "]";
+}
+
+function getNewPosition(position, direction,) {
+  const movement = movementMap[direction];
+  return { x: position.x + movement.x, y: position.y + movement.y };
+}
+
+function removeDuplicates(list) {
+  return [...new Set(list.map(v => JSON.stringify(v))).values()].map(vs => JSON.parse(vs));
+}
+
+function moveObjects(objectsToMove, grid, direction) {
+  while (objectsToMove.length > 0) {
+    const position = objectsToMove.pop();
+    const object = grid[position.y][position.x];
+    const newPosition = getNewPosition(position, direction);
+    grid[newPosition.y][newPosition.x] = object;
+    grid[position.y][position.x] = ".";
+  }
+}
+
+function getBox(position) {
+  if (isPartBox(position)) {
+    let obj = grid2[position.y][position.x]
+    if (obj === "[") {
+      return [position, (getNewPosition(position, '>'))]
+    } else if (obj === "]") {
+      return [(getNewPosition(position, '<')), position]
     }
   }
 
-  return false;
+  return undefined;
 }
 
-function part1() {
-  robots.forEach(r => move(r, 100));
-  const quadrantMap = { 4: 0, 1: 0, 2: 0, 3: 0 };
-  const quadrants = robots.map(r => getQuadrant(r)).filter(q => q !== -1);
-  quadrants.forEach(q => quadrantMap[q]++);
-  const safetyFactor = Object.values(quadrantMap).reduce((prev, count) => prev * count, 1);
-  console.log(`Safety factory: ${safetyFactor}`);
-}
-
-function part2() {
-  let i = 1;
-  while (!getTree() && i < 1000000) {
-    i++;
+function addBoxToList(position, list) {
+  let box = getBox(position);
+  let obj = grid2[position.y][position.x]
+  if (obj === "[") {
+    box.forEach(p => list.push(p))
+  } else if (obj === "]") {
+    box.reverse().forEach(p => list.push(p));
   }
-  console.log(`Seconds until tree: ${i}`);
+  return box;
+}
+
+function getGpsSum(symbol, grid) {
+  let sum = 0;
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      if (grid[y][x] === symbol) {
+        sum += 100 * y + x;
+      }
+    }
+  }
+  return sum;
+}
+
+function moveRobot1(robot, direction) {
+  const newPosition = getNewPosition(robot, direction);
+
+  const objectsToMove = [robot];
+  let positionToCheck = newPosition;
+  while (isBox(positionToCheck)) {
+    objectsToMove.push(positionToCheck);
+    positionToCheck = getNewPosition(positionToCheck, direction);
+  }
+
+  if (isWall(positionToCheck, grid)) {
+    return robot;
+  }
+
+  moveObjects(objectsToMove, grid, direction)
+  return newPosition;
+}
+
+function moveRobot2(robot, direction) {
+  const newPosition = getNewPosition(robot, direction);
+  let objectsToMove = [robot];
+  let positionToCheck = newPosition;
+  if (direction === ">" || direction === "<") {
+    while (isPartBox(positionToCheck)) {
+      const box = addBoxToList(positionToCheck, objectsToMove);
+      positionToCheck = getNewPosition(box[box.length - 1], direction);
+    }
+
+    if (isWall(positionToCheck, grid2)) {
+      return robot;
+    }
+  } else {
+    if (isWall(positionToCheck, grid2)) {
+      return robot;
+    }
+
+    let boxesToCheck = [getBox(positionToCheck)];
+    let boxToCheck;
+    while (boxesToCheck.length > 0) {
+      boxToCheck = boxesToCheck.shift();
+      if (!boxToCheck) {
+        continue;
+      }
+      boxToCheck.forEach(p => objectsToMove.push(p));
+      objectsToMove = removeDuplicates(objectsToMove);
+
+      const positionsToCheck = boxToCheck.map(p => getNewPosition(p, direction));
+      if (positionsToCheck.some(p => isWall(p, grid2))) {
+        return robot;
+      }
+
+      const newBoxes = positionsToCheck.map(p => getBox(p)).filter(b => b);
+      newBoxes.forEach(b => boxesToCheck.push(b));
+      boxesToCheck = removeDuplicates(boxesToCheck);
+    }
+  }
+
+  moveObjects(objectsToMove, grid2, direction)
+  return newPosition;
 }
 
 
-part1();
-part2();
+let robot1 = findRobot(grid);
+let robot2 = findRobot(grid2);
+moves.forEach((move, i) => {
+  robot1 = moveRobot1(robot1, move);
+  robot2 = moveRobot2(robot2, move);
+});
+
+const part1Sum = getGpsSum("O", grid);
+const part2Sum = getGpsSum("[", grid2);
+console.log(`Part 1 Sum: ${part1Sum} Part 2 Sum: ${part2Sum}`)
+
