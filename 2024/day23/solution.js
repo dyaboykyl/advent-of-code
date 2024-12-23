@@ -1,10 +1,6 @@
 import fs from 'fs';
 
-const connections = fs.readFileSync("input").toString().split("\n").map(v => {
-  const nodes = v.split("-");
-  nodes.sort();
-  return nodes;
-});
+const connections = fs.readFileSync("input").toString().split("\n").map(v => v.split("-").toSorted());
 const t3Parties = new Set();
 let largestParty = [];
 
