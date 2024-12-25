@@ -132,3 +132,5 @@ dist
 # inputs
 input
 sample*
+
+launch.json
