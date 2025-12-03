@@ -125,8 +125,33 @@ console.log(`y: `, y);
 console.log(`x + y: `, xy);
 console.log(`z (Part 1): `, z);
 
-// const z05Wires = involvedGates("z01");
-// getPossibleSwaps(z05Wires);
+const seen = {};
+function analyzeZ(digit) {
+  const name = `z${(digit + "").padStart(2, "0")}`;
+  const zGate = gatesByOutput[name];
+  const queue = [{ gate: zGate, level: 0 }];
+  const analysis = {};
+  while (queue.length > 0) {
+    const data = queue.pop();
+    const key = `${data.level}-${data.gate.operator}`;
+    const inputGates = data.gate.inputs.map(wire => gatesByOutput[wire.name]).filter(g => g).toSorted((a, b) => a.operator.localeCompare(b.operator));
+    analysis[key] = (analysis[key] ?? []).concat(inputGates.map(g => g.operator)).toSorted();
+    inputGates.forEach(g => {
+      if (!seen[g.output.name]) queue.push({ level: data.level + 1, gate: g });
+    });
+    seen[data.gate.output.name] = true;
+  }
+  console.log(`${name}: `, JSON.stringify(analysis));
+}
+
+// const allGatePairs = getAllPairs(gates);
+// const all4GatePairSwitches = getAllPairs(allGatePairs);
+
+const zWires = wires.filter(wire => wire.name.startsWith("z"));
+for (let i = 0; i < zWires.length; i++) {
+  analyzeZ(i)
+}
+
 
 // zWires.forEach(wire => {
 //   const involved = [];

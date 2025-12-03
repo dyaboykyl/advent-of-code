@@ -2,8 +2,9 @@
 Advent of Code solutions
 
 ```js
-cd 2024
+cd 2025
 npm install
+cd ..
 
-node day1/day1.js
+./run 1
 ```
